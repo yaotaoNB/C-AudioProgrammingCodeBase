@@ -1,0 +1,14 @@
+This is a simple program using an oscillator that can generate 4 basic waveforms made with portaudio.
+
+All cpp source code is in src folder with a make file, and include folder contain the header file.
+
+Program might not be able to run on Windows since portaudio was configured in the Mac OS.
+
+Steps to compile and run the program:
+1. cd the directory to src folder.
+
+2. type ./wavegen to run the executable, if you want to modify the code, just type make after that and it will auto update the object and executable file.
+
+3. choose the waveform to be played by type from 1 to 4.
+
+The class which provide the call back function to generate waves is in waveGen.cpp, change the number in #define NUM_SECONDS can change the time period of the sound being played.

@@ -1,0 +1,60 @@
+New Questions:
+Q1. What determins the number of input/output channels for both pa and sndfile? What is number of input channels? (Is that how many channels of its output file it will write to?) And what determins number of input channels?
+
+Q2. about 2nd argument of sf_readf_float(), why it has to pass an extra pointer (bufferCursor) in order to avoid glitch sound?
+
+Q3. Does shared_ptr also counts raw pointers that are pointing to an object?
+
+Old Questions:
+Q1. How to use portaudio to write a program that feed/write an audio stream (e.g. sine wave) to an input device (such as skype) and the person on another side can also hear that sinewave?
+
+Q2. Does portaudio have other loading methods (compressed/decompressed load) except streamming?
+
+Q3. Why does sampleBlock use a char*?
+
+Q4. Do we also need hardware acceleration to decompress mp3 file when we read it not in game engine? Encoding/Decoding is different with compress/decompress? Does .wav file need codec? Talk more about audio codec.
+
+Q5. What is Low/High Input/Output lantency in Pa_DeviceInfo struct stands for? and Blocking I/O said: Note that we use the default high latency values to help avoid underruns since we are usually reading and writing audio data from a relatively low priority thread
+
+Q6. What is interupt time? 
+
+Q7. What is RAW sound file?
+
+Q8. Why and how it's using | () verticle bar operator to set sf_info in make_sine.c?
+
+
+Problem Solved:
+1. Is the 3r argument of both sf_readf_float() and sf_write_float() count in frames or in samples (frames * num_channels)?
+Answer: there're 2 versions of sf_read_float and 2 versions of sf_write_float, 3rd argument of sf_read_float() should be the total number of samples (frames * num_channel), but sf_readf_float() will take care of number of channels for you (determined by the file), for sf_readf_float() 3rd argument should be number of frames regardless of how many channels it has.
+
+2. variables need to change related to channel numbers:
+(1) inputBuffer[frames * channels] (2) outputBuffer[frames * channels] (3) file channels (4) pa stream input channels
+
+3. Pa_OpenStream works and will call call_back normally at least, Pa_OpenDefaultStream won't call call_back
+so, I think there's something wrong with outputParameters device initialization, and check if Pa_OpenDefaultStream
+arguments initialized correctly.
+SOLUTION: outputParameters.hostApiSpecificStreamInfo = 0; BUT NOT outputParameters.hostApiSpecificStreamInfo = NULL;
+
+4. Audio quality bad (caused by the pointer)
+Solved it by using int * bufferCursor point to the first element of outputBuffer[] and pass bufferCursor sf_readf_int() instead of outputBuffer[].
+Search: 1. if sf_readf_int() only except pointer to a single variable? 
+Search 2. What's the different between pointer to a single var and ptr to an entire array? Isn't that suppose to be ptr points to an array also just points to the first elelemt in the array?
+
+5. 2nd time opening program won't play audio and only call callBack for once.
+SOLUTION: Forgot to call sf_close(sndfile); when AudioFile goes out of scope.
+
+6. int *outputBuffer can't be deallocated, allocate outputBuffer, use bufferCursor point to outputBuffer every callback.
+Solution: it might caused by port_audio callback function itself.
+
+Future study:
+1. Check how to make libsndfile load different file formats.
+2. check what caused the low quality problem, if sf_openFloat only accept ptr points to a single var.
+3. change all ptr to shared_ptr <float> (try use shared_ptr in portaudio and sndfile in the future)
+4. accept drag and drop to shell, space in file name.
+
+Tomorrow:
+change the name output_channel to channel, clear up the notes and put these notes in order, finish make file.
+
+
+
+
